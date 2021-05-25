@@ -1,32 +1,31 @@
 package com.example.pbe_table;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import com.android.volley.RequestQueue;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.example.pbe_table.ui.main.ui.login.LoginActivity;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,8 +35,10 @@ public class MainActivity extends AppCompatActivity {
     private String[] header;
     private ArrayList<String[]> rows;
     private TableDynamic tableDynamic;
-    private RequestQueue requestQueue;
-    private TextView text;
+    private TextView titleText;
+    private TextView welcomeText;
+    private String ip;
+    private String username;
     private boolean tableExist=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,19 +47,42 @@ public class MainActivity extends AppCompatActivity {
         rows = new ArrayList<>();
         tableLayout = (TableLayout) findViewById(R.id.table);
         textQuery = (EditText) findViewById(R.id.textQuery);
-        text = (TextView) findViewById(R.id.textView);
-        text.setTextSize(20);
-        text.setHintTextColor(Color.RED);
-        
-
-        requestQueue = Volley.newRequestQueue(this);
+        titleText = (TextView) findViewById(R.id.textView);
+        welcomeText= (TextView) findViewById(R.id.textUsername);
+        titleText.setTextSize(30);
+        titleText.setAllCaps( true );
+        titleText.setTextColor( Color.RED );
+        titleText.setText( "title" );
+        Intent intent= getIntent();
+        ip= intent.getStringExtra(LoginActivity.EXTRA_MESSAGE_IP);
+        username= intent.getStringExtra(LoginActivity.EXTRA_MESSAGE_NAME);
+        welcomeText.setText("Welcome: "+username);
+        welcomeText.setTextSize( 20 );
+        VolleySingleton.getInstance(this);
         tableDynamic= new TableDynamic(tableLayout, getApplicationContext());
+        textQuery.setOnEditorActionListener( new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    httpGet(v);
+                    return true;
+                }
+                return false;
+            }
+        } );
     }
 
     public void httpGet(View view){
-        String url="http://192.168.1.42/"+textQuery.getText().toString();
+        String url=ip;
+        if(textQuery.getText().toString().contains("&"))
+        {
+            url += textQuery.getText().toString()+"&nombreuser="+username;
+        }else{
+            url += textQuery.getText().toString()+"?nombreuser="+username;
+        }
         String title=textQuery.getText().toString().split("\\?")[0];
-        ArrayList<String[]> test=new ArrayList<>();
+        System.out.println(url);
+
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
 
@@ -67,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
                         JSONArray jsonArray = response;
 
                         if(tableExist) {tableDynamic.deleteAll(tableLayout);}
+                        if(jsonArray.isNull( 0 )){
+                            Toast.makeText( getApplicationContext(),"Query incorrecta", Toast.LENGTH_LONG ).show();
+                        }
 
                         try {
                             header = new String[jsonArray.getJSONObject(0).names().length()];
@@ -84,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                                 rows.add(item[i]);
                             }
 
-                            text.setText(title);
+                            titleText.setText(title);
 
                             tableDynamic.addData(rows);
                             tableDynamic.backgroundHeader(Color.CYAN);
@@ -94,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                             tableExist=true;
 
                         } catch (Exception w) {
-                            text.setText(w.getMessage());
+                            titleText.setText(w.getMessage());
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -102,13 +129,18 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO: Handle error
-
-                        text.setText(error.getMessage());
+                        Toast.makeText( getApplicationContext(), "Query sentence or network error", Toast.LENGTH_LONG ).show();
                     }
                 });
 
-        requestQueue.add(jsonArrayRequest);
+        VolleySingleton.getInstance().requestQueue.add(jsonArrayRequest);
 
+    }
+    public void logOut(View view){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        setResult(Activity.RESULT_OK);
+        finish();
     }
 
 }

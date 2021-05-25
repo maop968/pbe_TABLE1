@@ -11,8 +11,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class TableDynamic {
-        private TableLayout tableLayout;
-        private Context context;
+        private final TableLayout tableLayout;
+        private final Context context;
         private String[] header;
         private ArrayList<String[]> data;
         private TableRow tableRow;
@@ -22,7 +22,6 @@ public class TableDynamic {
         private boolean multiColor=false;
         int firstColor;
         int secondColor;
-        int textColor;
         public TableDynamic(TableLayout tableLayout, Context context) {
             this.tableLayout=tableLayout;
             this.context=context;

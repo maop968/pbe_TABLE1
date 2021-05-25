@@ -1,37 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/custom"
     tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textUsername"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Username" />
+
+    <Button
+        android:id="@+id/buttonLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center"
+        android:backgroundTint="@color/custom_button"
+
+        android:onClick="logOut"
+        android:text="Logout" />
 
     <EditText
         android:id="@+id/textQuery"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:lines="1"
-        android:singleLine="true"
-        android:inputType="text"
+        android:hint="Query"
         android:imeOptions="actionDone"
-
-        android:hint="Query" />
+        android:inputType="text"
+        android:lines="1"
+        android:singleLine="true" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="SEND"
-        android:onClick="httpGet" />
+        android:onClick="httpGet"
+        android:backgroundTint="@color/custom_button"
+        android:text="SEND REQUEST" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:text="TextView" />
+        android:layout_height="48dp"
+        android:imeOptions="actionDone"
+        android:gravity="center"
+        android:text="Title" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -45,7 +63,8 @@
             <TableLayout
                 android:id="@+id/table"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
         </HorizontalScrollView>
     </ScrollView>
+
 </LinearLayout>
